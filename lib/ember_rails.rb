@@ -30,15 +30,18 @@ module Ember
         FileUtils.mkdir_p(tmp_path)
         FileUtils.cp(::Ember::Source.bundled_path_for("ember#{ext}"), tmp_path.join("ember.js"))
         FileUtils.cp(::Ember::Data::Source.bundled_path_for("ember-data#{ext}"), tmp_path.join("ember-data.js"))
-        app.assets.append_path(tmp_path)
 
-        # Make the handlebars.js and handlebars.runtime.js bundled
-        # in handlebars-source available.
-        app.assets.append_path(File.expand_path('../', ::Handlebars::Source.bundled_path))
+        app.config.assets.configure do |env|
+          env.append_path(tmp_path)
 
-        # Allow a local variant override
-        ember_path = app.root.join("vendor/assets/ember/#{variant}")
-        app.assets.prepend_path(ember_path.to_s) if ember_path.exist?
+          # Make the handlebars.js and handlebars.runtime.js bundled
+          # in handlebars-source available.
+          env.append_path(File.expand_path('../', ::Handlebars::Source.bundled_path))
+
+          # Allow a local variant override
+          ember_path = app.root.join("vendor/assets/ember/#{variant}")
+          env.prepend_path(ember_path.to_s) if ember_path.exist?
+        end
       end
 
       initializer "ember_rails.es5_default", :group => :all do |app|
